@@ -1,0 +1,11 @@
+# Arquivos de compilacao e temporarios
+.DS_Store
+build/
+build_cmake/
+*.o
+*.a
+*.dylib
+
+# Extras locais
+docs/MODELAGEM_UML.md
+requirements/

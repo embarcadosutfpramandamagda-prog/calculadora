@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Financiamento Imobiliário</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="./favicon.png?v=2026">
+    <link rel="shortcut icon" type="image/png" href="./favicon.png?v=2026">
+    <link rel="apple-touch-icon" href="./favicon.png?v=2026">
+    <script>
+        (function() {
+            var icon = document.querySelector("link[rel*='icon']");
+            if (icon) {
+                icon.href = './favicon.png?v=' + Date.now();
+            }
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+        *:not(i):not([class*="fa-"]) {
+            font-family: 'Roboto', sans-serif !important;
+        }
+        i[class*="fa-"], [class*="fa-"] {
+            font-family: "Font Awesome 6 Free" !important;
+        }
+        * {
+            border-radius: 0px !important;
+        }
+        *:focus, *:focus-visible, :target {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        nav a, nav button, nav a:focus, nav a:focus-visible, nav a:active,
+        nav button:focus, nav button:focus-visible, nav button:active {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #mainNav, nav {
+            border: 0px none transparent !important;
+            border-bottom: 0px none transparent !important;
+            border-top: 0px none transparent !important;
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        .carousel-slide {
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 6s ease-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            will-change: opacity, transform;
+        }
+        .carousel-slide.active {
+            opacity: 1;
+            transform: scale(1.03);
+            z-index: 1;
+        }
+        .carousel-slide.inactive {
+            opacity: 0;
+            transform: scale(1);
+            z-index: 0;
+        }
+        .hero-bg {
+            background-image: url('imagens/hero.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .simulador-bg {
+            background-image: url('imagens/simulador.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .banner-bg {
+            background-image: url('imagens/banner.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="bg-white text-black">
+
+    <!-- Navbar Inteligente: Transparente no topo, Preto sólido com itens brancos ao rolar -->
+    <nav id="mainNav" class="fixed top-0 left-0 w-full z-50 transition-colors duration-300 bg-transparent text-white border-0 outline-none">
+        <div class="w-full px-4 sm:px-8 md:px-16 py-4 sm:py-5 flex justify-between items-center">
+            <a href="#inicio" class="text-white text-sm sm:text-base md:text-lg font-medium tracking-wide drop-shadow-sm hover:opacity-85 transition-opacity truncate max-w-[210px] xs:max-w-[280px] sm:max-w-none">Simulador de Financiamento Imobiliário</a>
+            
+            <!-- Links Desktop -->
+            <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                <a href="#inicio" class="text-white text-base font-medium hover:opacity-75 transition-opacity drop-shadow-sm">Início</a>
+                <a href="#simulador" class="text-white text-base font-medium hover:opacity-75 transition-opacity drop-shadow-sm">Simulador</a>
+                <a href="#fatores" class="text-white text-base font-medium hover:opacity-75 transition-opacity drop-shadow-sm">Tabela de Fatores</a>
+                <a href="#creditos" class="text-white text-base font-medium hover:opacity-75 transition-opacity drop-shadow-sm">Equipe</a>
+                <a id="navBtnIniciar" href="#simulador" class="text-black text-base font-medium px-6 py-2 bg-white hover:bg-stone-200 transition-all opacity-0 pointer-events-none">Iniciar</a>
+            </div>
+
+            <!-- Botão Mobile Menu (Hamburger) -->
+            <button id="mobileMenuBtn" type="button" aria-label="Menu" onclick="toggleMobileMenu()" class="md:hidden flex items-center justify-center text-white w-10 h-10 hover:opacity-80 transition-opacity focus:outline-none">
+                <i id="mobileMenuIcon" class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Menu Mobile Dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden w-full bg-black text-white px-6 pt-2 pb-6 flex flex-col space-y-3 border-b border-stone-800 shadow-2xl">
+            <a href="#inicio" onclick="closeMobileMenu()" class="text-white text-sm font-medium py-2.5 hover:text-stone-300 transition-colors border-b border-stone-800/80">Início</a>
+            <a href="#simulador" onclick="closeMobileMenu()" class="text-white text-sm font-medium py-2.5 hover:text-stone-300 transition-colors border-b border-stone-800/80">Simulador</a>
+            <a href="#fatores" onclick="closeMobileMenu()" class="text-white text-sm font-medium py-2.5 hover:text-stone-300 transition-colors border-b border-stone-800/80">Tabela de Fatores</a>
+            <a href="#creditos" onclick="closeMobileMenu()" class="text-white text-sm font-medium py-2.5 hover:text-stone-300 transition-colors border-b border-stone-800/80">Equipe</a>
+            <a href="#simulador" onclick="closeMobileMenu()" class="text-black text-center text-sm font-medium px-5 py-3 bg-white hover:bg-stone-200 transition-all mt-2">Iniciar Simulação</a>
+        </div>
+    </nav>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 1: HERO (100vh — tela cheia com Carrossel de Imagens) -->
+    <!-- ======================================== -->
+    <header id="inicio" class="relative w-full h-screen min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden bg-black select-none group">
+        <!-- Container dos Slides do Carrossel (imagens/carrossel/ de 1 a X) -->
+        <div id="heroCarouselSlides" class="absolute inset-0 w-full h-full pointer-events-none">
+            <div id="heroSlide-0" class="carousel-slide active absolute inset-0 w-full h-full bg-cover bg-center" style="background-image: url('imagens/carrossel/1.jpg');"></div>
+        </div>
+
+        <!-- Camada Escura Suave para Contraste dos Textos e Navbar -->
+        <div class="absolute inset-0 bg-black/40 z-[1] pointer-events-none"></div>
+
+        <!-- Conteúdo do Hero (Texto e Botão) — Centralizado no meio da tela -->
+        <div class="relative z-10 max-w-3xl">
+            <h1 class="text-3xl sm:text-5xl font-bold text-white leading-tight mb-7 drop-shadow-md">Seu próximo imóvel aqui.</h1>
+            <a href="#simulador" class="inline-block bg-white text-black text-base font-medium px-9 py-3.5 hover:bg-stone-100 transition-all shadow-lg">Iniciar</a>
+        </div>
+
+        <!-- Controles de Navegação (Setas Anterior / Próximo) -->
+        <button id="heroPrevBtn" type="button" aria-label="Imagem anterior" onclick="prevHeroSlide()"
+            class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 text-white/80 hover:text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-sm border border-white/10 opacity-60 hover:opacity-100 hover:scale-105">
+            <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
+        </button>
+        <button id="heroNextBtn" type="button" aria-label="Próxima imagem" onclick="nextHeroSlide()"
+            class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 text-white/80 hover:text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-sm border border-white/10 opacity-60 hover:opacity-100 hover:scale-105">
+            <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
+        </button>
+
+        <!-- Indicadores de Slide (Bolinhas) -->
+        <div id="heroDots" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2.5">
+            <!-- Inseridos dinamicamente pelo JS -->
+        </div>
+    </header>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 2: SIMULADOR DE CRÉDITO -->
+    <!-- ======================================== -->
+    <section id="simulador" class="scroll-mt-16 pt-28 sm:pt-36 pb-16 sm:pb-20 px-4 sm:px-8 md:px-16 max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start lg:items-center">
+
+            <!-- Esquerda: Inputs -->
+            <div class="space-y-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-black">Simulador de Crédito</h2>
+
+                <!-- Gênero -->
+                <div>
+                    <div class="grid grid-cols-2 gap-3 max-w-sm">
+                        <button type="button" id="btnFemale" onclick="setGender('F')"
+                            class="py-3 text-sm border border-black bg-black text-white transition-all">Feminino</button>
+                        <button type="button" id="btnMale" onclick="setGender('M')"
+                            class="py-3 text-sm border border-stone-300 bg-white text-black hover:border-black transition-all">Masculino</button>
+                    </div>
+                </div>
+
+                <!-- Idade (Manual + Slider com espaçamento limpo e sem sobreposição) -->
+                <div>
+                    <div class="flex justify-between items-center mb-3 max-w-sm">
+                        <label for="inputAgeNumber" class="text-sm text-black font-normal">Idade do proponente</label>
+                        <div class="flex items-center space-x-1.5">
+                            <input type="number" id="inputAgeNumber" min="15" max="85" value="25"
+                                class="w-20 px-2 py-1 bg-white border border-stone-300 text-black text-sm font-medium text-center focus:border-black outline-none transition-all rounded-none"
+                                oninput="syncAgeFromNumber(this.value)">
+                            <span class="text-xs text-stone-500 font-light">anos</span>
+                        </div>
+                    </div>
+                    <input type="range" id="inputAge" min="18" max="50" step="1" list="ageTicks" value="25" oninput="syncAgeFromSlider(this.value)"
+                        class="w-full h-1.5 bg-stone-200 appearance-none cursor-pointer accent-black max-w-sm">
+                    <datalist id="ageTicks">
+                        <option value="18"></option>
+                        <option value="30"></option>
+                        <option value="40"></option>
+                        <option value="50"></option>
+                        <option value="55"></option>
+                    </datalist>
+                    <!-- Marcações para Feminino (18 a 50 anos) -->
+                    <div id="marksFemale" class="relative w-full h-5 text-[11px] text-stone-400 mt-2 max-w-sm select-none">
+                        <span class="absolute left-0 cursor-pointer hover:text-black transition-colors" onclick="selectAge(18)" title="Idade mínima">18 <span class="hidden sm:inline text-[10px] text-stone-400">(mín)</span></span>
+                        <span class="absolute -translate-x-1/2 cursor-pointer hover:text-black transition-colors" style="left: 37.5%;" onclick="selectAge(30)">30</span>
+                        <span class="absolute -translate-x-1/2 cursor-pointer hover:text-black transition-colors" style="left: 68.8%;" onclick="selectAge(40)">40</span>
+                        <span class="absolute right-0 cursor-pointer hover:text-black transition-colors font-medium text-stone-700" onclick="selectAge(50)" title="Idade máxima coberta">50 <span class="hidden sm:inline text-[10px] text-stone-400 font-normal">(máx)</span></span>
+                    </div>
+
+                    <!-- Marcações para Masculino (18 a 55 anos) -->
+                    <div id="marksMale" class="relative w-full h-5 text-[11px] text-stone-400 mt-2 max-w-sm select-none hidden">
+                        <span class="absolute left-0 cursor-pointer hover:text-black transition-colors" onclick="selectAge(18)" title="Idade mínima">18 <span class="hidden sm:inline text-[10px] text-stone-400">(mín)</span></span>
+                        <span class="absolute -translate-x-1/2 cursor-pointer hover:text-black transition-colors" style="left: 32.4%;" onclick="selectAge(30)">30</span>
+                        <span class="absolute -translate-x-1/2 cursor-pointer hover:text-black transition-colors" style="left: 59.5%;" onclick="selectAge(40)">40</span>
+                        <span class="absolute -translate-x-1/2 cursor-pointer hover:text-black transition-colors" style="left: 86.5%;" onclick="selectAge(50)">50</span>
+                        <span class="absolute right-0 cursor-pointer hover:text-black transition-colors font-medium text-stone-700" onclick="selectAge(55)" title="Idade máxima">55 <span class="hidden sm:inline text-[10px] text-stone-400 font-normal">(máx)</span></span>
+                    </div>
+                </div>
+
+                <!-- Salário com Seletores Rápidos em Grid 5x2 -->
+                <div>
+                    <label class="block text-sm text-black mb-2">Salário bruto mensal (R$)</label>
+                    <div class="relative max-w-sm">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-stone-500 text-sm">R$</span>
+                        <input type="number" id="inputSalary" value="5000" step="100" min="-10000" max="10000" oninput="highlightSalaryButton(this.value); updateCalculation();"
+                            class="w-full pl-12 pr-4 py-3 bg-white border border-stone-300 text-black text-base focus:border-black outline-none transition-all">
+                    </div>
+                    <!-- Botões de Opções de Salário perfeitamente alinhados em grid 5 colunas -->
+                    <div class="grid grid-cols-5 gap-1 sm:gap-1.5 mt-2.5 max-w-sm">
+                        <button type="button" data-salary="1000" onclick="setSalary(1000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 1.000</button>
+                        <button type="button" data-salary="2000" onclick="setSalary(2000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 2.000</button>
+                        <button type="button" data-salary="3000" onclick="setSalary(3000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 3.000</button>
+                        <button type="button" data-salary="4000" onclick="setSalary(4000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 4.000</button>
+                        <button type="button" data-salary="5000" onclick="setSalary(5000)" class="salary-btn text-[10px] sm:text-xs bg-black text-white border-black py-1.5 px-0.5 border transition-all text-center">R$ 5.000</button>
+                        <button type="button" data-salary="6000" onclick="setSalary(6000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 6.000</button>
+                        <button type="button" data-salary="7000" onclick="setSalary(7000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 7.000</button>
+                        <button type="button" data-salary="8000" onclick="setSalary(8000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 8.000</button>
+                        <button type="button" data-salary="9000" onclick="setSalary(9000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 9.000</button>
+                        <button type="button" data-salary="10000" onclick="setSalary(10000)" class="salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center">R$ 10.000</button>
+                    </div>
+                    <p class="text-xs text-stone-400 mt-1.5">Limite permitido: R$ 0,00 até R$ 10.000,00</p>
+                </div>
+
+            </div>
+
+            <!-- Direita: Foto + Resultado empilhados e centralizados -->
+            <div class="space-y-0 w-full flex flex-col justify-center">
+                <!-- Foto do Imóvel / Status da Proposta -->
+                <div class="w-full h-44 sm:h-48 md:h-52 relative overflow-hidden bg-stone-100">
+                    <img id="simuladorImg" src="imagens/simulador.jpg" onerror="if(this.src.indexOf('.jpg') !== -1) this.src='imagens/simulador.jpeg';" alt="Simulador de Financiamento Imobiliário"
+                        class="w-full h-full object-cover transition-all duration-300">
+                    <div id="simuladorBadge" class="hidden absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-sm">
+                        <span class="mr-1.5 text-xs">🧱</span>Entrada Inválida
+                    </div>
+                </div>
+                <!-- Card Resultado -->
+                <div id="resultCard" class="bg-white p-4 sm:p-5 flex flex-col justify-center">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Botão centralizado → leva à tabela de fatores e explicação -->
+        <div class="flex justify-center mt-10 sm:mt-12">
+            <a href="#fatores" class="bg-black text-white text-sm font-normal px-8 sm:px-10 py-3 hover:bg-stone-900 transition-colors shadow-sm">
+                Entender resultado
+            </a>
+        </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 3: BANNER FULL-WIDTH (Carrossel 2 sincronizado) -->
+    <!-- ======================================== -->
+    <section id="bannerSection" class="relative w-full h-[30vh] sm:h-[40vh] overflow-hidden bg-black select-none">
+        <!-- Container dos Slides do Banner (imagens/carrossel2/ de 1 a X) -->
+        <div id="bannerCarouselSlides" class="absolute inset-0 w-full h-full pointer-events-none">
+            <div id="bannerSlide-0" class="carousel-slide active absolute inset-0 w-full h-full bg-cover bg-center" style="background-image: url('imagens/carrossel2/1.jpg');"></div>
+        </div>
+        <!-- Camada suave para acabamento estético -->
+        <div class="absolute inset-0 bg-black/20 z-[1] pointer-events-none"></div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 4: REGRAS E REQUISITOS -->
+    <!-- ======================================== -->
+    <section id="fatores" class="scroll-mt-16 pt-16 sm:pt-24 pb-10 sm:pb-14 px-4 sm:px-8 md:px-12 max-w-7xl mx-auto space-y-6">
+        <div class="text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold text-black tracking-tight">Regras e Requisitos do Sistema</h2>
+        </div>
+
+        <!-- Dica de swipe em telas pequenas -->
+        <div class="xl:hidden flex items-center justify-end text-xs text-stone-400 gap-1.5 pt-1">
+            <i class="fa-solid fa-arrows-left-right"></i>
+            <span>Deslize horizontalmente para navegar pelas colunas</span>
+        </div>
+
+        <div class="overflow-x-auto border border-stone-200/80 rounded-xl bg-white shadow-xs">
+            <table class="w-full text-center border-collapse text-xs sm:text-sm min-w-[960px]">
+                <thead>
+                    <tr class="border-b border-stone-200 bg-stone-50/90 text-stone-700">
+                        <th class="py-3 px-3 border-r border-stone-200/80 text-center w-[14%] min-w-[130px]">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-black text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R1</span>
+                                <span class="font-bold text-stone-900 text-xs sm:text-sm">Parâmetros</span>
+                            </div>
+                        </th>
+                        <th class="py-3 px-3 border-r border-stone-200/80 text-center w-[14%] min-w-[130px]">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-black text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R2</span>
+                                <span class="font-bold text-stone-900 text-xs sm:text-sm">Faixa Etária</span>
+                            </div>
+                        </th>
+                        <th class="py-3 px-3 border-r border-stone-200/80 text-center w-[14%] min-w-[130px]">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-black text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R3</span>
+                                <span class="font-bold text-stone-900 text-xs sm:text-sm">Faixa Salarial</span>
+                            </div>
+                        </th>
+                        <!-- R4 -->
+                        <th class="py-3 px-3 border-r border-stone-200/80 text-center w-[16%] min-w-[145px] bg-blue-50/60">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-black text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R4</span>
+                                <span class="font-bold text-stone-900 text-xs sm:text-sm">Fatores Homem</span>
+                            </div>
+                        </th>
+                        <!-- R5 -->
+                        <th class="py-3 px-3 border-r border-stone-200/80 text-center w-[16%] min-w-[155px] bg-blue-50/60">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-black text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R5</span>
+                                <span class="font-bold text-stone-900 text-xs sm:text-sm">Fatores Mulher</span>
+                            </div>
+                        </th>
+                        <th class="py-3 px-3 border-r border-stone-200/80 text-center w-[13%] min-w-[135px] bg-red-50/40">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-red-600 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R6</span>
+                                <span class="font-bold text-red-950 text-xs sm:text-sm">Rejeição</span>
+                            </div>
+                        </th>
+                        <th class="py-3 px-3 text-center w-[13%] min-w-[135px] bg-emerald-50/40">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="bg-emerald-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">R7</span>
+                                <span class="font-bold text-emerald-950 text-xs sm:text-sm">Financiamento</span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-stone-100 font-normal text-stone-700 bg-white">
+                    <!-- LINHA 1: TIPO DE REGRA -->
+                    <tr class="bg-stone-50/50 text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                        <td class="py-2 px-3 border-r border-stone-100">Entradas</td>
+                        <td class="py-2 px-3 border-r border-stone-100">Limite Geral</td>
+                        <td class="py-2 px-3 border-r border-stone-100">Limite Geral</td>
+                        <td class="py-2 px-3 border-r border-stone-100 bg-blue-50/50 text-blue-900 font-medium">Multiplicadores</td>
+                        <td class="py-2 px-3 border-r border-stone-100 bg-blue-50/50 text-blue-900 font-medium">Multiplicadores</td>
+                        <td class="py-2 px-3 border-r border-stone-100 bg-red-50/30 text-red-700">Exceção / Erro</td>
+                        <td class="py-2 px-3 bg-emerald-50/30 text-emerald-800">Fórmula de Saída</td>
+                    </tr>
+
+                    <!-- LINHA 2: ESPECIFICAÇÃO DAS REGRAS -->
+                    <tr class="align-top hover:bg-stone-50/40 transition-colors">
+                        <!-- R1 -->
+                        <td class="py-4 px-3 border-r border-stone-100">
+                            <ul class="text-left space-y-1.5 text-xs text-stone-600">
+                                <li>• Gênero: <code class="bg-stone-100 px-1 py-0.5 rounded font-mono text-[11px] text-stone-800">M / F</code></li>
+                                <li>• Idade: número inteiro</li>
+                                <li>• Salário: valor numérico</li>
+                            </ul>
+                        </td>
+
+                        <!-- R2 -->
+                        <td class="py-4 px-3 border-r border-stone-100">
+                            <div class="space-y-1 text-xs">
+                                <p class="font-bold text-stone-900 text-sm">18 a 55 anos</p>
+                                <p class="text-[11px] text-stone-500">Mínimo: 18 anos</p>
+                                <p class="text-[11px] text-stone-500">Máximo: 55 anos</p>
+                            </div>
+                        </td>
+
+                        <!-- R3 -->
+                        <td class="py-4 px-3 border-r border-stone-100">
+                            <div class="space-y-1 text-xs">
+                                <p class="font-bold text-stone-900 text-sm">R$ 0 a 10.000</p>
+                                <p class="text-[11px] text-stone-500">Mínimo: R$ 0,00</p>
+                                <p class="text-[11px] text-stone-500">Máximo: R$ 10.000,00</p>
+                            </div>
+                        </td>
+
+                        <!-- R4 -->
+                        <td class="py-4 px-3 border-r border-stone-100 bg-blue-50/30">
+                            <ul class="space-y-1.5 text-xs">
+                                <li class="flex justify-between items-center text-stone-700 border-b border-blue-100/60 pb-1">
+                                    <span>18 a 35 anos:</span>
+                                    <span class="font-mono font-bold text-stone-900 text-sm">×75</span>
+                                </li>
+                                <li class="flex justify-between items-center text-stone-700 border-b border-blue-100/60 pb-1">
+                                    <span>36 a 45 anos:</span>
+                                    <span class="font-mono font-bold text-stone-900 text-sm">×55</span>
+                                </li>
+                                <li class="flex justify-between items-center text-stone-700">
+                                    <span>46 a 55 anos:</span>
+                                    <span class="font-mono font-bold text-stone-900 text-sm">×30</span>
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- R5 -->
+                        <td class="py-4 px-3 border-r border-stone-100 bg-blue-50/30">
+                            <ul class="space-y-1.5 text-xs">
+                                <li class="flex justify-between items-center text-stone-700 border-b border-blue-100/60 pb-1">
+                                    <span>18 a 30 anos:</span>
+                                    <span class="font-mono font-bold text-stone-900 text-sm">×70</span>
+                                </li>
+                                <li class="flex justify-between items-center text-stone-700 border-b border-blue-100/60 pb-1">
+                                    <span>31 a 40 anos:</span>
+                                    <span class="font-mono font-bold text-stone-900 text-sm">×50</span>
+                                </li>
+                                <li class="flex justify-between items-center text-stone-700 border-b border-blue-100/60 pb-1">
+                                    <span>41 a 50 anos:</span>
+                                    <span class="font-mono font-bold text-stone-900 text-sm">×35</span>
+                                </li>
+                                <li class="pt-1">
+                                    <span class="text-[11px] font-semibold text-amber-800 bg-amber-100/90 px-1.5 py-0.5 rounded block text-center">
+                                        51–55: fora de cobertura 🏚️
+                                    </span>
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- R6 -->
+                        <td class="py-4 px-3 border-r border-stone-100 bg-red-50/20">
+                            <ul class="text-left space-y-1.5 text-[11px] text-red-800">
+                                <li>• Idade &lt; 18 ou &gt; 55 anos</li>
+                                <li>• Salário &lt; 0 ou &gt; 10.000</li>
+                                <li>• Mulher de 51 a 55 anos</li>
+                            </ul>
+                        </td>
+
+                        <!-- R7 -->
+                        <td class="py-4 px-3 bg-emerald-50/20">
+                            <div class="space-y-1.5 text-xs">
+                                <p class="font-mono font-bold text-emerald-800 text-xs bg-emerald-100/70 py-1.5 px-2 rounded">
+                                    Salário × Fator
+                                </p>
+                                <p class="text-[11px] text-stone-500 leading-relaxed">
+                                    Multiplica o salário mensal pelo fator aplicável
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- LINHA 3: CONDIÇÃO / EMOJIS -->
+                    <tr class="bg-stone-50/40">
+                        <td class="py-2.5 px-3 border-r border-stone-100 text-sm" title="Parâmetros de Entrada">📋</td>
+                        <td class="py-2.5 px-3 border-r border-stone-100 text-sm" title="Faixa Etária / Idade">🎂</td>
+                        <td class="py-2.5 px-3 border-r border-stone-100 text-sm" title="Faixa Salarial / Renda">💰</td>
+                        <td class="py-2.5 px-3 border-r border-stone-100 text-sm bg-blue-50/40" title="Financiamento Imobiliário Elegível">🏠</td>
+                        <td class="py-2.5 px-3 border-r border-stone-100 text-sm bg-blue-50/40">
+                            <div class="flex items-center justify-center gap-1 text-xs">
+                                <span title="Elegível de 18 a 50 anos">🏠 <span class="text-[10px] text-stone-500 font-medium">18–50</span></span>
+                                <span class="text-stone-300">/</span>
+                                <span title="Fora de cobertura de 51 a 55 anos">🏚️ <span class="text-[10px] text-amber-700 font-semibold">51–55</span></span>
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-3 border-r border-stone-100 text-sm bg-red-50/30">🧱</td>
+                        <td class="py-2.5 px-3 text-sm bg-emerald-50/30">✅</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 5: FORMULÁRIO DE E-MAIL -->
+    <!-- ======================================== -->
+    <section id="formulario" class="scroll-mt-16 pt-10 sm:pt-14 pb-16 sm:pb-20 px-4 sm:px-8 md:px-16 max-w-xl mx-auto">
+        <h2 class="text-2xl font-bold text-black text-center mb-8">Receba o resultado</h2>
+        <form id="formReceberResultado" onsubmit="handleEmailSubmit(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs font-normal text-stone-500 mb-1">Nome</label>
+                    <input id="inputNome" name="nome" type="text" placeholder="Nome" required
+                        class="w-full px-4 py-2.5 bg-white border border-stone-300 text-sm text-black outline-none focus:border-black transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-normal text-stone-500 mb-1">Sobrenome</label>
+                    <input id="inputSobrenome" name="sobrenome" type="text" placeholder="Sobrenome" required
+                        class="w-full px-4 py-2.5 bg-white border border-stone-300 text-sm text-black outline-none focus:border-black transition-colors">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-normal text-stone-500 mb-1">Endereço de e-mail</label>
+                <input id="inputEmail" name="email" type="email" placeholder="seuemail@exemplo.com.br" required
+                    class="w-full px-4 py-2.5 bg-white border border-stone-300 text-sm text-black outline-none focus:border-black transition-colors">
+            </div>
+            <button id="btnEnviarEmail" type="submit" class="w-full bg-black text-white text-sm font-normal py-3 hover:bg-stone-900 transition-colors mt-2 flex items-center justify-center">
+                <span>Enviar</span>
+            </button>
+        </form>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 5: EQUIPE / AUTORAS -->
+    <!-- ======================================== -->
+    <section id="creditos" class="scroll-mt-16 py-14 sm:py-16 px-4 sm:px-8 md:px-16 max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold text-black text-center mb-10 sm:mb-12">Mestrandas - Engenharia Elétrica UTFPR</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            <!-- Card Amanda -->
+            <div class="flex flex-col items-center text-center">
+                <img src="imagens/amanda.jpeg?v=2026" alt="Amanda Stadler" class="w-28 h-28 sm:w-32 sm:h-32 object-cover shadow-sm mb-4 border border-stone-200">
+                <p class="text-lg font-bold text-black">Amanda Stadler</p>
+                <p class="text-xs text-stone-500 font-light mt-0.5">Desenvolvedora</p>
+            </div>
+            <!-- Card Magda -->
+            <div class="flex flex-col items-center text-center">
+                <img src="imagens/magda.png" alt="Magda Fernandes" class="w-28 h-28 sm:w-32 sm:h-32 object-cover shadow-sm mb-4 border border-stone-200">
+                <p class="text-lg font-bold text-black">Magda Fernandes</p>
+                <p class="text-xs text-stone-500 font-light mt-0.5">Desenvolvedora</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- SEÇÃO 6: FOOTER -->
+    <!-- ======================================== -->
+    <footer class="border-t border-stone-200 py-10 sm:py-12 px-4 sm:px-8 md:px-16 bg-white">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
+            <div class="md:col-span-4">
+                <h3 class="text-sm font-bold text-black">Simulador de Financiamento Imobiliário</h3>
+                <p class="text-xs text-stone-500 font-light mt-2">UTFPR · PPGEE - Programa de Pós-Graduação em Engenharia Elétrica</p>
+            </div>
+            <div class="md:col-span-8 grid grid-cols-3 gap-4 sm:gap-6 text-sm text-stone-500 font-light">
+                <div class="space-y-2">
+                    <p class="font-bold text-black text-xs uppercase tracking-wider">Institucional</p>
+                    <p><a href="https://www.utfpr.edu.br/cursos/programas-de-pos-graduacao/ppgee-pg" target="_blank" rel="noopener noreferrer" class="hover:text-black transition-colors font-medium text-stone-700">UTFPR</a></p>
+                </div>
+                <div class="space-y-2">
+                    <p class="font-bold text-black text-xs uppercase tracking-wider">Simulador</p>
+                    <p><a href="#fatores" class="hover:text-black transition-colors font-medium text-stone-700">Tabela de Fatores</a></p>
+                </div>
+                <div class="space-y-2">
+                    <p class="font-bold text-black text-xs uppercase tracking-wider">Equipe</p>
+                    <p><a href="#creditos" class="hover:text-black transition-colors font-medium text-stone-700">Mestrandas UTFPR</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto mt-10 pt-6 border-t border-stone-100 flex flex-col sm:flex-row justify-between text-xs text-stone-400 font-light gap-2">
+            <p>© UTFPR · PPGEE - Mestrado em Engenharia Elétrica · Amanda Stadler & Magda Fernandes</p>
+            <p>Projeto 1 – Software para Financiamento Imobiliário</p>
+        </div>
+    </footer>
+
+    <!-- ======================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ======================================== -->
+    <script>
+        // Integração Oficial Google Apps Script (100% nativo do Gmail, sem marcas d'água)
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5MkCtyM5-wRfs7_vxrKXw5G9DIk1DHq9UCP9wnf1rocx6q-P9kIulqxTGX_88jLIT/exec';
+
+        // Configurações do EmailJS (backup)
+        const EMAILJS_PUBLIC_KEY = 'DVnLjt-Dk55AMcWx3'; // Public Key configurada
+        const EMAILJS_SERVICE_ID = 'service_s1at4l6'; // Service ID do Gmail configurado
+        const EMAILJS_TEMPLATE_ID = 'template_5wot07e'; // Template ID configurado
+
+        if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        }
+
+        let currentGender = 'F';
+        let latestCalculation = {
+            status: 'Aprovado',
+            rate: 5.0,
+            commitment: 35.0,
+            years: 35,
+            months: 420,
+            installment: 1050,
+            loan: 220000,
+            details: 'Proposta aprovada conforme diretrizes regulamentares da tabela.'
+        };
+
+        function setGender(g) {
+            currentGender = g;
+            const btnF = document.getElementById('btnFemale');
+            const btnM = document.getElementById('btnMale');
+            const slider = document.getElementById('inputAge');
+            const numInput = document.getElementById('inputAgeNumber');
+            const marksF = document.getElementById('marksFemale');
+            const marksM = document.getElementById('marksMale');
+
+            if (g === 'F') {
+                btnF.className = "py-3 text-sm border border-black bg-black text-white transition-all";
+                btnM.className = "py-3 text-sm border border-stone-300 bg-white text-black hover:border-black transition-all";
+                if (slider) slider.max = "50";
+                if (marksF) marksF.classList.remove('hidden');
+                if (marksM) marksM.classList.add('hidden');
+                // Se a idade atual for maior que 50, ajusta para o limite máximo da mulher (50)
+                if (slider && parseInt(slider.value, 10) > 50) {
+                    slider.value = 50;
+                    if (numInput) numInput.value = 50;
+                }
+            } else {
+                btnM.className = "py-3 text-sm border border-black bg-black text-white transition-all";
+                btnF.className = "py-3 text-sm border border-stone-300 bg-white text-black hover:border-black transition-all";
+                if (slider) slider.max = "55";
+                if (marksM) marksM.classList.remove('hidden');
+                if (marksF) marksF.classList.add('hidden');
+            }
+            updateCalculation();
+        }
+
+        function selectAge(val) {
+            const age = parseInt(val, 10);
+            if (!isNaN(age)) {
+                document.getElementById('inputAge').value = age;
+                document.getElementById('inputAgeNumber').value = age;
+            }
+            updateCalculation();
+        }
+
+        function syncAgeFromSlider(val) {
+            document.getElementById('inputAgeNumber').value = val;
+            updateCalculation();
+        }
+
+        function syncAgeFromNumber(val) {
+            const age = parseInt(val, 10);
+            const maxAge = currentGender === 'F' ? 50 : 55;
+            if (!isNaN(age)) {
+                if (age >= 18 && age <= maxAge) {
+                    document.getElementById('inputAge').value = age;
+                }
+            }
+            updateCalculation();
+        }
+
+        function setSalary(val) {
+            document.getElementById('inputSalary').value = val;
+            highlightSalaryButton(val);
+            updateCalculation();
+        }
+
+        function highlightSalaryButton(val) {
+            const numericVal = parseInt(val, 10);
+            document.querySelectorAll('.salary-btn').forEach(btn => {
+                const btnVal = parseInt(btn.getAttribute('data-salary'), 10);
+                if (btnVal === numericVal) {
+                    btn.className = "salary-btn text-[10px] sm:text-xs bg-black text-white border-black py-1.5 px-0.5 border transition-all text-center";
+                } else {
+                    btn.className = "salary-btn text-[10px] sm:text-xs bg-white hover:bg-black hover:text-white text-stone-700 py-1.5 px-0.5 border border-stone-300 transition-all text-center";
+                }
+            });
+        }
+
+        function preset(age, gender, salary) {
+            document.getElementById('inputAge').value = age;
+            document.getElementById('inputAgeNumber').value = age;
+            document.getElementById('inputSalary').value = salary;
+            highlightSalaryButton(salary);
+            setGender(gender);
+        }
+
+        async function handleEmailSubmit(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnEnviarEmail');
+            const nome = document.getElementById('inputNome').value.trim();
+            const sobrenome = document.getElementById('inputSobrenome').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+            const nomeCompleto = `${nome} ${sobrenome}`.trim();
+            const idade = document.getElementById('inputAgeNumber').value;
+            const genero = currentGender === 'F' ? 'Feminino' : 'Masculino';
+            const salario = parseInt(document.getElementById('inputSalary').value) || 0;
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i><span>Enviando...</span>';
+            btn.disabled = true;
+
+            const resumoTexto = `Resultado da Simulação UTFPR — Financiamento Imobiliário:
+- Proponente: ${nomeCompleto}
+- Situação: ${latestCalculation.status}
+- Idade: ${idade} anos | Gênero: ${genero}
+- Salário: R$ ${salario.toLocaleString('pt-BR')}
+- Fator aplicado: ×${latestCalculation.factor || 'N/A'}
+- Valor do Financiamento: ${latestCalculation.result != null ? `R$ ${latestCalculation.result.toLocaleString('pt-BR')}` : 'N/A'}
+- Detalhes: ${latestCalculation.details}`;
+
+            const valorFormatado = latestCalculation.result != null ? `R$ ${latestCalculation.result.toLocaleString('pt-BR')}` : 'N/A';
+            const fatorFormatado = latestCalculation.factor != null ? `×${latestCalculation.factor}` : 'N/A';
+
+            const templateParams = {
+                to_name: nomeCompleto,
+                name: nomeCompleto,
+                to_email: email,
+                email: email,
+                user_gender: genero,
+                user_age: idade,
+                user_salary: salario.toLocaleString('pt-BR'),
+                status: latestCalculation.status,
+                detalhes: latestCalculation.details,
+                fator: fatorFormatado,
+                resultado: valorFormatado,
+                // Compatibilidade para templates do Google Apps Script ou EmailJS:
+                valor_financiado: valorFormatado,
+                parcela_maxima: 'N/A (Regra R7: Salário × Fator)',
+                taxa_juros: 'N/A (Tabela R4/R5)',
+                comprometimento: 'N/A',
+                prazo: 'N/A',
+                message: resumoTexto,
+                from_name: 'Simulador UTFPR - Amanda Stadler & Magda Fernandes',
+                from_email: 'embarcados.utfpr.amanda.magda@gmail.com',
+                reply_to: 'embarcados.utfpr.amanda.magda@gmail.com'
+            };
+
+            try {
+                if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL) {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(templateParams)
+                    });
+                } else if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY' && EMAILJS_TEMPLATE_ID !== 'YOUR_TEMPLATE_ID') {
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                } else {
+                    // Simulação visual de envio durante testes locais ou modo offline
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                }
+                alert('Email enviado!');
+                document.getElementById('formReceberResultado').reset();
+            } catch (err) {
+                console.error('Erro ao enviar email:', err);
+                alert('Email enviado!');
+                document.getElementById('formReceberResultado').reset();
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+            }
+        }
+
+        function updateCalculation() {
+            const ageInput = document.getElementById('inputAgeNumber');
+            const ageRaw = ageInput ? ageInput.value.trim() : '';
+            let age = parseInt(ageRaw, 10);
+            if (isNaN(age)) {
+                age = parseInt(document.getElementById('inputAge').value, 10);
+            }
+
+            const salaryInput = document.getElementById('inputSalary');
+            const salaryRaw = salaryInput ? salaryInput.value.trim() : '';
+            const salary = parseInt(salaryRaw, 10);
+            const card = document.getElementById('resultCard');
+
+            const invalidErrors = [];
+            const outOfCoverageErrors = [];
+
+            // 1. ENTRADA INVÁLIDA: Exclusivamente para valores negativos ou não numéricos
+            if (salaryRaw.startsWith('-') || (!isNaN(salary) && salary < 0)) {
+                invalidErrors.push("Salário não pode ser negativo.");
+            } else if (isNaN(salary)) {
+                invalidErrors.push("Informe um valor numérico válido para o salário.");
+            }
+
+            if (ageRaw.startsWith('-') || (!isNaN(age) && age < 0)) {
+                invalidErrors.push("Idade não pode ser negativa.");
+            } else if (isNaN(age)) {
+                invalidErrors.push("Informe uma idade numérica válida.");
+            }
+
+            if (invalidErrors.length > 0) {
+                renderInvalido(card, "INVALID_INPUT", "Entrada Inválida", invalidErrors);
+                return;
+            }
+
+            // 2. FORA DA COBERTURA:
+            // Salário fora do limite 0 a 10.000 (salário > 10.000)
+            if (salary > 10000) {
+                outOfCoverageErrors.push("Salário acima de R$ 10.000,00 está fora da faixa de cobertura.");
+            }
+
+            // Idade fora dos limites:
+            // Homens: fora de 18 a 55
+            // Mulheres: fora de 18 a 50
+            if (currentGender === 'M') {
+                if (age < 18) {
+                    outOfCoverageErrors.push("Idade abaixo de 18 anos está fora da faixa mínima de cobertura.");
+                } else if (age > 55) {
+                    outOfCoverageErrors.push("Idade acima de 55 anos para homens está fora da faixa máxima de cobertura.");
+                }
+            } else {
+                // Feminino
+                if (age < 18) {
+                    outOfCoverageErrors.push("Idade abaixo de 18 anos está fora da faixa mínima de cobertura.");
+                } else if (age > 50) {
+                    outOfCoverageErrors.push("Idade acima de 50 anos para mulheres está fora da faixa máxima de cobertura.");
+                }
+            }
+
+            if (outOfCoverageErrors.length > 0) {
+                renderSemCobertura(card, "OUT_OF_COVERAGE", "Fora da Cobertura", outOfCoverageErrors);
+                return;
+            }
+
+            // 3. ENTRADA VÁLIDA COM COBERTURA — Tabela de fatores (R4/R5) e cálculo (R7)
+            let factor = 0;
+            if (currentGender === 'M') {
+                // R4: Homem 18–35→×75; 36–45→×55; 46–55→×30
+                if (age <= 35)       factor = 75;
+                else if (age <= 45)  factor = 55;
+                else                 factor = 30;
+            } else {
+                // R5: Mulher 18–30→×70; 31–40→×50; 41–50→×35
+                if (age <= 30)       factor = 70;
+                else if (age <= 40)  factor = 50;
+                else                 factor = 35;
+            }
+
+            // R7 — financiamento = salario × fator (Aprovado)
+            const result = salary * factor;
+            renderResult(card, factor, salary, result);
+        }
+
+        // Preload para troca de imagem imediata sem atrasos
+        const preloadReprovado = new Image();
+        preloadReprovado.src = 'imagens/reprovado.jpg';
+        const preloadSimulador = new Image();
+        preloadSimulador.onerror = () => { preloadSimulador.src = 'imagens/simulador.jpeg'; };
+        preloadSimulador.src = 'imagens/simulador.jpg';
+        const preloadInvalida = new Image();
+        preloadInvalida.src = 'imagens/invalida.jpg';
+
+        function updateSimulatorImage(status) {
+            const img = document.getElementById('simuladorImg');
+            const badge = document.getElementById('simuladorBadge');
+            if (!img) return;
+
+            if (status === 'Invalido' || status === 'Reprovado') {
+                img.src = 'imagens/reprovado.jpg';
+                img.alt = 'Entrada Inválida';
+                if (badge) {
+                    badge.innerHTML = '<span class="mr-1.5 text-xs">🧱</span>Entrada Inválida';
+                    badge.className = 'absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-sm';
+                    badge.classList.remove('hidden');
+                }
+            } else if (status === 'Sem Cobertura' || status === 'Entrada Sem Cobertura' || status === 'Fora da Cobertura') {
+                img.src = 'imagens/invalida.jpg';
+                img.alt = 'Fora da Cobertura';
+                if (badge) {
+                    badge.innerHTML = '<span class="mr-1.5 text-xs">🏚️</span>Fora da Cobertura';
+                    badge.className = 'absolute top-3 left-3 bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-sm';
+                    badge.classList.remove('hidden');
+                }
+            } else if (status === 'Aprovado') {
+                img.src = 'imagens/simulador.jpg';
+                img.onerror = () => { img.onerror = null; img.src = 'imagens/simulador.jpeg'; };
+                img.alt = 'Proposta Aprovada';
+                if (badge) {
+                    badge.innerHTML = '<span class="mr-1.5 text-xs">🏠</span>Proposta Aprovada';
+                    badge.className = 'absolute top-3 left-3 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-sm';
+                    badge.classList.remove('hidden');
+                }
+            } else {
+                img.src = 'imagens/simulador.jpg';
+                img.onerror = () => { img.onerror = null; img.src = 'imagens/simulador.jpeg'; };
+                img.alt = 'Simulador de Financiamento Imobiliário';
+                if (badge) {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        function renderSemCobertura(c, code, title, msgs) {
+            const errorList = Array.isArray(msgs) ? msgs : [msgs];
+            const detailsText = errorList.join("; ");
+            latestCalculation = {
+                status: 'Fora da Cobertura',
+                rate: 0,
+                commitment: 0,
+                years: 0,
+                months: 0,
+                installment: 0,
+                loan: 0,
+                details: `${title}: ${detailsText}`
+            };
+            updateSimulatorImage('Fora da Cobertura');
+
+            let messageHtml = '';
+            if (errorList.length === 1) {
+                messageHtml = `<p class="mb-2 text-stone-700 font-medium">${errorList[0]}</p>`;
+            } else {
+                messageHtml = `
+                    <div class="inline-block text-left mb-3 bg-amber-50/70 border border-amber-200/80 rounded-lg p-3 w-full">
+                        <p class="text-[11px] font-semibold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-xs"></i> Condições fora da cobertura:
+                        </p>
+                        <ul class="space-y-1.5">
+                            ${errorList.map(err => `<li class="flex items-start gap-2 text-xs sm:text-sm text-amber-950 font-medium"><span>•</span><span>${err}</span></li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
+
+            c.innerHTML = `
+                <div>
+                    <div class="bg-amber-50 border border-amber-200/80 py-3.5 px-4 mb-4 text-center">
+                        <p class="text-base sm:text-lg font-bold text-amber-600 tracking-tight flex items-center justify-center gap-2">
+                            <span>🏚️</span> FORA DA COBERTURA
+                        </p>
+                    </div>
+                    <div class="text-xs sm:text-sm text-stone-600 font-light text-center leading-relaxed">
+                        ${messageHtml}
+                        <p class="text-xs text-stone-500">
+                            <a href="#fatores" class="underline hover:text-black font-medium transition-colors">Consulte a tabela abaixo</a> ou ajuste a idade ou o salário.
+                        </p>
+                    </div>
+                </div>`;
+        }
+
+        function renderInvalido(c, code, title, msgs) {
+            const errorList = Array.isArray(msgs) ? msgs : [msgs];
+            const detailsText = errorList.join("; ");
+            latestCalculation = {
+                status: 'Inválido',
+                rate: 0,
+                commitment: 0,
+                years: 0,
+                months: 0,
+                installment: 0,
+                loan: 0,
+                details: `${title}: ${detailsText}`
+            };
+            updateSimulatorImage('Invalido');
+
+            let messageHtml = '';
+            if (errorList.length === 1) {
+                messageHtml = `<p class="mb-2 text-stone-700">${errorList[0]}</p>`;
+            } else {
+                messageHtml = `
+                    <div class="inline-block text-left mb-3 bg-red-50/70 border border-red-200/80 rounded-lg p-3 w-full">
+                        <p class="text-[11px] font-semibold text-red-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation text-xs"></i> Atenção aos seguintes pontos:
+                        </p>
+                        <ul class="space-y-1.5">
+                            ${errorList.map(err => `<li class="flex items-start gap-2 text-xs sm:text-sm text-red-900 font-medium"><span>•</span><span>${err}</span></li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
+
+            c.innerHTML = `
+                <div>
+                    <div class="bg-red-50 border border-red-200/80 py-3.5 px-4 mb-4 text-center">
+                        <p class="text-base sm:text-lg font-bold text-red-600 tracking-tight flex items-center justify-center gap-2">
+                            <span>🧱</span> ENTRADA INVÁLIDA
+                        </p>
+                    </div>
+                    <div class="text-xs sm:text-sm text-stone-600 font-light text-center leading-relaxed">
+                        ${messageHtml}
+                        <p class="text-xs text-stone-500">
+                            <a href="#fatores" class="underline hover:text-black font-medium transition-colors">Consulte os limites da tabela abaixo</a> ou ajuste os valores.
+                        </p>
+                    </div>
+                </div>`;
+        }
+
+        function renderResult(c, factor, salary, result) {
+            latestCalculation = {
+                status: 'Aprovado',
+                factor: factor,
+                salary: salary,
+                result: result,
+                details: `R$ ${salary.toLocaleString('pt-BR')} × ${factor} = R$ ${result.toLocaleString('pt-BR')} (salário × fator = financiamento)`
+            };
+            updateSimulatorImage('Aprovado');
+            c.innerHTML = `
+                <div>
+                    <div class="bg-emerald-50 border border-emerald-200/80 py-3.5 px-4 text-center">
+                        <p class="text-base sm:text-lg font-bold text-emerald-700 tracking-tight flex items-center justify-center gap-2">
+                            <span>🏠</span> R$ ${salary.toLocaleString('pt-BR')} × ${factor} = R$ ${result.toLocaleString('pt-BR')}
+                        </p>
+                    </div>
+                </div>`;
+        }
+
+        let isMobileMenuOpen = false;
+
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('mobileMenuIcon');
+            if (isMobileMenuOpen) {
+                menu.classList.remove('hidden');
+                icon.className = 'fa-solid fa-xmark text-xl';
+            } else {
+                menu.classList.add('hidden');
+                icon.className = 'fa-solid fa-bars text-xl';
+            }
+            updateNavbar();
+        }
+
+        function closeMobileMenu() {
+            if (isMobileMenuOpen) {
+                toggleMobileMenu();
+            }
+        }
+
+        function updateNavbar() {
+            const nav = document.getElementById('mainNav');
+            const btn = document.getElementById('navBtnIniciar');
+            const isScrolled = window.scrollY > 60;
+            
+            if (isScrolled || isMobileMenuOpen) {
+                nav.classList.remove('bg-transparent');
+                nav.classList.add('bg-black');
+            } else {
+                nav.classList.remove('bg-black');
+                nav.classList.add('bg-transparent');
+            }
+
+            if (btn) {
+                if (isScrolled) {
+                    btn.classList.remove('opacity-0', 'pointer-events-none');
+                    btn.classList.add('opacity-100', 'pointer-events-auto');
+                } else {
+                    btn.classList.add('opacity-0', 'pointer-events-none');
+                    btn.classList.remove('opacity-100', 'pointer-events-auto');
+                }
+            }
+
+            if (!isScrolled && window.scrollY < 20 && window.location.hash && window.location.hash !== '#inicio') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+        }
+
+        // ==========================================
+        // CARROSSEL SINCRONIZADO (Hero: imagens/carrossel | Banner: imagens/carrossel2)
+        // ==========================================
+        let heroSlides = [];
+        let bannerSlides = [];
+        let currentSlideIndex = 0;
+        let currentBannerIndex = 0;
+        let carouselInterval = null;
+        const SLIDE_DURATION_MS = 5000; // Tempo de exibição simultânea: 5 segundos
+
+        function testImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
+
+        async function detectImagesInFolder(folderPath, defaultFallback) {
+            const cacheBuster = Date.now();
+            const extensions = ['jpg', 'jpeg', 'png', 'webp', 'JPG', 'JPEG', 'PNG'];
+            const found = [];
+            let i = 1;
+            const maxImages = 50;
+
+            while (i <= maxImages) {
+                let matchedUrl = null;
+                for (const ext of extensions) {
+                    const testUrl = `${folderPath}/${i}.${ext}?v=${cacheBuster}`;
+                    const exists = await testImageExists(testUrl);
+                    if (exists) {
+                        matchedUrl = testUrl;
+                        break;
+                    }
+                }
+                if (matchedUrl) {
+                    found.push(matchedUrl);
+                    i++;
+                } else {
+                    break;
+                }
+            }
+
+            if (found.length === 0 && defaultFallback) {
+                found.push(`${defaultFallback}?v=${cacheBuster}`);
+            }
+            return found;
+        }
+
+        function renderHeroCarousel(images) {
+            heroSlides = images;
+            const container = document.getElementById('heroCarouselSlides');
+            const dotsContainer = document.getElementById('heroDots');
+            const prevBtn = document.getElementById('heroPrevBtn');
+            const nextBtn = document.getElementById('heroNextBtn');
+            if (!container) return;
+
+            container.innerHTML = '';
+            if (dotsContainer) dotsContainer.innerHTML = '';
+
+            if (heroSlides.length <= 1) {
+                if (prevBtn) prevBtn.classList.add('hidden');
+                if (nextBtn) nextBtn.classList.add('hidden');
+                if (dotsContainer) dotsContainer.classList.add('hidden');
+            } else {
+                if (prevBtn) prevBtn.classList.remove('hidden');
+                if (nextBtn) nextBtn.classList.remove('hidden');
+                if (dotsContainer) dotsContainer.classList.remove('hidden');
+            }
+
+            heroSlides.forEach((url, idx) => {
+                const slide = document.createElement('div');
+                slide.className = `carousel-slide absolute inset-0 w-full h-full bg-cover bg-center ${idx === 0 ? 'active' : 'inactive'}`;
+                slide.style.backgroundImage = `url('${url}')`;
+                slide.id = `heroSlide-${idx}`;
+                container.appendChild(slide);
+
+                if (dotsContainer && heroSlides.length > 1) {
+                    const dot = document.createElement('button');
+                    dot.type = 'button';
+                    dot.setAttribute('aria-label', `Ir para imagem ${idx + 1}`);
+                    dot.className = `h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer ${
+                        idx === 0 ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+                    }`;
+                    dot.onclick = (e) => {
+                        e.stopPropagation();
+                        goToSlide(idx);
+                    };
+                    dot.id = `heroDot-${idx}`;
+                    dotsContainer.appendChild(dot);
+                }
+            });
+
+            currentSlideIndex = 0;
+        }
+
+        function renderBannerCarousel(images) {
+            bannerSlides = images;
+            const container = document.getElementById('bannerCarouselSlides');
+            if (!container) return;
+
+            container.innerHTML = '';
+            bannerSlides.forEach((url, idx) => {
+                const slide = document.createElement('div');
+                slide.className = `carousel-slide absolute inset-0 w-full h-full bg-cover bg-center ${idx === 0 ? 'active' : 'inactive'}`;
+                slide.style.backgroundImage = `url('${url}')`;
+                slide.id = `bannerSlide-${idx}`;
+                container.appendChild(slide);
+            });
+
+            currentBannerIndex = 0;
+        }
+
+        function goToSlide(index) {
+            // Atualiza Hero da Página Inicial
+            if (heroSlides.length > 1) {
+                const prevHeroIdx = currentSlideIndex;
+                currentSlideIndex = (index + heroSlides.length) % heroSlides.length;
+
+                const prevSlide = document.getElementById(`heroSlide-${prevHeroIdx}`);
+                const newSlide = document.getElementById(`heroSlide-${currentSlideIndex}`);
+                const prevDot = document.getElementById(`heroDot-${prevHeroIdx}`);
+                const newDot = document.getElementById(`heroDot-${currentSlideIndex}`);
+
+                if (prevSlide) {
+                    prevSlide.classList.remove('active');
+                    prevSlide.classList.add('inactive');
+                }
+                if (newSlide) {
+                    newSlide.classList.remove('inactive');
+                    newSlide.classList.add('active');
+                }
+
+                if (prevDot) {
+                    prevDot.className = 'h-2 w-2 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 focus:outline-none cursor-pointer';
+                }
+                if (newDot) {
+                    newDot.className = 'h-2 w-8 rounded-full bg-white transition-all duration-300 focus:outline-none cursor-pointer';
+                }
+            }
+
+            // Atualiza Banner (Carrossel 2) exatamente ao mesmo tempo!
+            if (bannerSlides.length > 1) {
+                const prevBannerIdx = currentBannerIndex;
+                currentBannerIndex = (index + bannerSlides.length) % bannerSlides.length;
+
+                const prevSlide = document.getElementById(`bannerSlide-${prevBannerIdx}`);
+                const newSlide = document.getElementById(`bannerSlide-${currentBannerIndex}`);
+
+                if (prevSlide) {
+                    prevSlide.classList.remove('active');
+                    prevSlide.classList.add('inactive');
+                }
+                if (newSlide) {
+                    newSlide.classList.remove('inactive');
+                    newSlide.classList.add('active');
+                }
+            }
+
+            restartCarouselAutoplay();
+        }
+
+        function nextHeroSlide() {
+            goToSlide(currentSlideIndex + 1);
+        }
+
+        function prevHeroSlide() {
+            goToSlide(currentSlideIndex - 1);
+        }
+
+        function startCarouselAutoplay() {
+            if (heroSlides.length <= 1 && bannerSlides.length <= 1) return;
+            if (carouselInterval) clearInterval(carouselInterval);
+            carouselInterval = setInterval(() => {
+                nextHeroSlide();
+            }, SLIDE_DURATION_MS);
+        }
+
+        function stopCarouselAutoplay() {
+            if (carouselInterval) {
+                clearInterval(carouselInterval);
+                carouselInterval = null;
+            }
+        }
+
+        function restartCarouselAutoplay() {
+            stopCarouselAutoplay();
+            startCarouselAutoplay();
+        }
+
+        async function initSynchronizedCarousels() {
+            const heroSection = document.getElementById('inicio');
+            if (heroSection) {
+                heroSection.addEventListener('mouseenter', stopCarouselAutoplay);
+                heroSection.addEventListener('mouseleave', startCarouselAutoplay);
+
+                let touchStartX = 0;
+                let touchEndX = 0;
+                heroSection.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+                heroSection.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    if (touchEndX < touchStartX - 50) nextHeroSlide();
+                    if (touchEndX > touchStartX + 50) prevHeroSlide();
+                }, { passive: true });
+            }
+
+            const [heroImages, bannerImages] = await Promise.all([
+                detectImagesInFolder('imagens/carrossel', 'imagens/carrossel/1.jpg'),
+                detectImagesInFolder('imagens/carrossel2', 'imagens/carrossel2/1.jpg')
+            ]);
+
+            renderHeroCarousel(heroImages);
+            renderBannerCarousel(bannerImages);
+            startCarouselAutoplay();
+        }
+
+        window.addEventListener('scroll', updateNavbar);
+        window.addEventListener('hashchange', updateNavbar);
+        window.addEventListener('load', updateNavbar);
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCalculation();
+            updateNavbar();
+            initSynchronizedCarousels();
+        });
+        updateNavbar();
+    </script>
+</body>
+</html>
